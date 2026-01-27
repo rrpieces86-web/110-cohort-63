@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 
 app = Flask(__name__) # Instance of Flask
 # http://127.0.0.1:5000/
@@ -40,6 +40,78 @@ def course_information():
         "level": "Beginner"
     }
     return course_data
+
+# path paramater
+#is a dynamic part of the url used to identify a specific item or resource within a api
+
+@app.route("/greet/<string:name>", methods=["GET"])
+def greet(name):
+    print(f"this is the name {name}")
+    return jsonify({"message": "hello"})
+
+
+products = [
+    {"_id": 1,
+     "title": "Nintendo Switch",
+      "price": 999.99,
+       "category": "electronics",
+        "image": "https://picsum.photos/seed/1/300/300"
+    },
+    {
+        "_id": 2,
+        "title": "smart refrigerator",
+        "price": 999.99,
+        "category": "kitchen",
+        "image": "https://picsum.photos/seed/2/300/300"
+    },
+    {
+        "_id": 3,
+        "title": "bluetooth speaker",
+        "price": 79.99,
+        "category": "electronics",
+        "image": "https://picsum.photos/seed/3/300/300"
+    },
+]
+
+
+@app.route("/api/products", methods=["GET"])
+def product_list():
+    return jsonify({
+        "success": True,
+        "message": "Products retrieved successfully",
+        "products": products
+    })
+
+# GET api/products/3
+@app.route("/api/products/<int:product_id>")
+def get_product_by_id(product_id):
+    for product in products:
+        if product["_id"] == product_id:
+            return jsonify({
+               "success": True,
+               "message": "Product retrieved successfully",
+               "data": product 
+            }), 200 # ok
+    return jsonify({
+        "success": False,
+        "message": "Product not found"
+    }), 404
+
+# POST api/products
+@app.route("/api/products", methods=["POST"])
+def create_products():
+    new_product = request.get_json()
+    print(new_product)
+    products.append(new_product)
+    return jsonify({
+        "success": True,
+        "message": "product sucessfully created",
+        "data": new_product
+
+    })
+    return "working on it/POST"
+
+
 @app.route("/coupons", methods=["GET"])
 def coupons():
     coupons_data = [
@@ -48,10 +120,18 @@ def coupons():
         {"_id": 3, "code": "VIP50", "discount": 50}
     ]
     return coupons_data
+
+
 @app.route("/coupons/count", methods=["GET"])
 def count():
+    coupons_data = [
+        {"_id": 1, "code": "WELCOME10", "discount": 10},
+        {"_id": 2, "code": "SPOOKEY25", "discount": 25},
+        {"_id": 3, "code": "VIP50", "discount": 50}
+    ]
     count = (len(coupons_data))
-    return count
+    return {"coupons-count": count}
+
 
 if __name__ == "__main__":
     app.run(debug=True)
