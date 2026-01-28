@@ -112,25 +112,46 @@ def create_products():
     return "working on it/POST"
 
 
+coupons_data = [
+    {"_id": 1, "code": "WELCOME10", "discount": 10},
+    {"_id": 2, "code": "SPOOKEY25", "discount": 25},
+    {"_id": 3, "code": "VIP50", "discount": 50}
+]
 @app.route("/coupons", methods=["GET"])
 def coupons():
-    coupons_data = [
-        {"_id": 1, "code": "WELCOME10", "discount": 10},
-        {"_id": 2, "code": "SPOOKEY25", "discount": 25},
-        {"_id": 3, "code": "VIP50", "discount": 50}
-    ]
     return coupons_data
 
 
 @app.route("/coupons/count", methods=["GET"])
 def count():
-    coupons_data = [
-        {"_id": 1, "code": "WELCOME10", "discount": 10},
-        {"_id": 2, "code": "SPOOKEY25", "discount": 25},
-        {"_id": 3, "code": "VIP50", "discount": 50}
-    ]
+ 
     count = (len(coupons_data))
     return {"coupons-count": count}
+
+@app.route("/api/coupons", methods=["POST"])
+def create_coupon():
+    new_coupon = request.get_json()
+    print(new_coupon)
+    coupons_data.append(new_coupon)
+    return jsonify({
+        "success": True,
+        "message": "coupon created!",
+        "data": new_coupon
+
+    })
+app.route("/api/coupons/<int:coupon_id>")
+def get_coupon_by_id(coupon_id):
+    for coupon in coupons_data:
+        if coupon["_id"] == coupon_id:
+            return jsonify({
+                "success": True,
+                "message": "coupon retrieved",
+                "data": coupon
+            }), 200
+        return jsonify({
+            "success": False,
+            "message": "product not found"
+        }), 404
 
 
 if __name__ == "__main__":
